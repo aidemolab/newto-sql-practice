@@ -35,3 +35,22 @@ Then open http://127.0.0.1:8000 in a browser. Stop the app with Ctrl+C.
 3. The app shows at most 500 rows per query.
 4. A watchdog cancels any query that outlives the time limit.
 5. Passwords live in `.env`, which Git ignores.
+
+## Run it on the server (Ubuntu)
+
+```bash
+git clone https://github.com/aidemolab/newto-sql-practice.git
+cd newto-sql-practice
+sudo -u postgres psql -d retailhub < db/create_practice_role.sql
+sudo -u postgres psql -d retailhub -c "\password practice_ro"
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+cp .env.example .env && chmod 600 .env     # then set DB_PASSWORD and ACCESS_CODE
+sudo cp deploy/newto-sql-practice.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now newto-sql-practice
+sudo ufw allow 80/tcp
+```
+
+To update the server after a change: `git pull`, then
+`sudo systemctl restart newto-sql-practice`.

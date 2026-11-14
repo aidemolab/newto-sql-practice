@@ -144,9 +144,15 @@
   tbody tr:hover td.rn { background: var(--accent-wash); }
 
   /* ---------- access code ---------- */
-  .gate { position: fixed; inset: 0; background: rgba(20,39,46,.55); display: none; align-items: center; justify-content: center; padding: 20px; }
+  /* Until access is settled, nothing of the app is shown: only the header and the code box. */
+  body.locked main { visibility: hidden; }
+  body.locked header .mode { display: none; }
+  .gate { position: fixed; inset: 0; top: 0; background: var(--wash); display: none; align-items: center; justify-content: center; padding: 20px; }
+  .gate form { border: 1px solid var(--line); box-shadow: 0 6px 24px rgba(20,39,46,.08); }
   .gate.show { display: flex; }
   .gate form { background: var(--paper); border-radius: 10px; padding: 22px; width: 100%; max-width: 360px; }
+  .gate .brand { font-weight: 600; font-size: 15px; padding-bottom: 12px; margin-bottom: 14px; border-bottom: 1px solid var(--line); }
+  .gate .brand span { display: block; font-weight: 400; font-size: 12.5px; color: var(--ink-soft); }
   .gate h2 { margin: 0 0 6px; font-size: 17px; }
   .gate p { margin: 0 0 12px; color: var(--ink-soft); font-size: 14px; }
   .gate input { width: 100%; font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; margin-bottom: 10px; }
@@ -159,7 +165,7 @@
   }
 </style>
 </head>
-<body>
+<body class="locked">
 <header>
   <h1>RetailHub SQL Practice</h1>
   <span class="sub">Newto Training · PostgreSQL</span>
@@ -198,6 +204,7 @@ ORDER BY unit_price DESC;</textarea>
 
 <div class="gate" id="gate">
   <form id="gateForm">
+    <div class="brand">RetailHub SQL Practice <span>Newto Training</span></div>
     <h2>Access code</h2>
     <p>Enter the access code you were given for this practice app.</p>
     <input id="gateInput" type="password" autocomplete="off" aria-label="Access code">
@@ -266,6 +273,7 @@ ORDER BY unit_price DESC;</textarea>
   }
 
   function askForCode(wrong) {
+    document.body.classList.add("locked");
     $("gateBad").textContent = wrong && accessCode ? "That code was not recognised. Try again." : "";
     gate.classList.add("show");
     $("gateInput").value = "";
@@ -285,11 +293,13 @@ ORDER BY unit_price DESC;</textarea>
     try { data = await api("/api/schema"); }
     catch (e) {
       if (e.message !== "access") {
+        document.body.classList.remove("locked");
         tablesEl.textContent = "";
         tablesEl.appendChild(el("p", "side-note", "The table list could not be loaded. Refresh the page to try again."));
       }
       return;
     }
+    document.body.classList.remove("locked");
     tablesEl.textContent = "";
     data.tables.forEach((t) => {
       const box = el("div", "tbl");

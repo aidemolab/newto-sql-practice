@@ -1,0 +1,7 @@
+# Secrets: the real settings file never goes to GitHub
+.env
+
+# Python
+.venv/
+__pycache__/
+*.pyc
